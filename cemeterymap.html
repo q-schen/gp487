@@ -161,7 +161,11 @@ function action_To_Perform_When_Marker_Is_Clicked_On_The_Map(feature, layer) {
 			PopupText.push("<br/><b>Person 1 Given Name:</b> " + feature.properties.Given_names_1)			
 	
 		// Join all the text to make the Popup	
-		layer.bindPopup("<p>" + PopupText[0] + PopupText[1] + PopupText[2] + PopupText[3] + PopupText[4] + personal_info(feature, layer) + "</p>");						
+		layer.bindPopup("<p>" + PopupText[0] + PopupText[1] + PopupText[2] + PopupText[3] + PopupText[4] + personal_info(feature, layer) + "</p>");
+		
+		// Add images to popup
+		layer.bindPopup("<p><a href="images/Busch_1.jpg">Busch Photo</a></p>");
+		
 	} // end if
 } // end of function
 
