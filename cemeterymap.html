@@ -106,26 +106,25 @@ var sampleData = {
 var geojson = L.geoJSON(sampleData, {
 	onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
     pointToLayer: function (feature, latlng) {
-        return L.circleMarker(latlng, uprightMonumentStyle);
+		var styles = {
+			"upright": 'grey',
+			"ledge": 'green',
+			"ground": 'brown'
+		};
+		
+        return L.circleMarker(latlng, {
+			radius: 8,
+			fillColor: styles[features.properties.monument_type],
+			color: styles[features.properties.monument_type],
+			weight: 1,
+			opacity: 1,
+			fillOpacity: 0.4
+		});
     }
 })
 geojson.addTo(map);
 myGeoJSONLayers.addLayer(geojson);
 
-
-
-
-
-
-
-var uprightMonumentStyle = {
-    radius: 8,
-    fillColor: "#ff7800",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-};
 
 
 function specific_style_for_ways(feature) {
