@@ -72,39 +72,94 @@ var baseMaps = {
 <!-- We are going to make a group for our 'top layers' -->
 var myGeoJSONLayers = L.layerGroup(); 
   
-  <!-- we juse JQUERY to access our GeoJSON -->
-  <!-- Remember our GeoJSON is stored in a subfolder - so we need to make sure we get the file location correct-->
-  <!-- This will become a new layer -->
-  
-  $.getJSON("./geojson/Monument_Locations.geojson",  
-     function(data) {
-		 // tell Leaflet to go to the function action_To_Perform_When_Marker_Is_Clicked_On_The_Map
-		 // when someone clicks on one of the objects in the GeoJSON layer
-        var geojson = L.geoJson(data,{onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
-			style: specific_style_for_ways});
-        geojson.addTo(map);
-        <!-- add our new layer to the group of top layers -->
-        myGeoJSONLayers.addLayer(geojson);
-     }
-  );
+<!-- we juse JQUERY to access our GeoJSON -->
+<!-- Remember our GeoJSON is stored in a subfolder - so we need to make sure we get the file location correct-->
+<!-- This will become a new layer -->
+
+$.getJSON("./geojson/Monument_Locations.geojson",  
+function(data) {
+	// tell Leaflet to go to the function action_To_Perform_When_Marker_Is_Clicked_On_The_Map
+	// when someone clicks on one of the objects in the GeoJSON layer
+	var geojson = L.geoJson(data,{onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
+		style: specific_style_for_ways});
+	geojson.addTo(map);
+	<!-- add our new layer to the group of top layers -->
+	myGeoJSONLayers.addLayer(geojson);
+	}
+);
 // Notice that we have made a change here also. 
 // We have added the myGeoJSONLayers variable so that Leaflet knows that you 
 // want to include the GeoJSON as a layer on the map
 // Notice that we also make a place where we can switch on/off the layer
-var overlayMaps = {"Monument Locations": myGeoJSONLayers};	
+var overlayMaps = {"Monument Locations": myGeoJSONLayers, "Sample Data": sampleData};	
 
-L.control.layers(baseMaps, overlayMaps,myGeoJSONLayers).addTo(map); 
+L.control.layers(baseMaps, overlayMaps, myGeoJSONLayers, sampleData).addTo(map); 
 
 
 function specific_style_for_ways(feature) {
 	switch (feature.properties.monument_type) {
-		case 'upright': return {color: "#FFFF00"};
-		case 'ledge': return {color: "#99FF66"};
-		case 'ground': return {color: "#CC66CC"};
+		case "upright": return {color: "#FFFF00"};
+		case "ledge": return {color: "#99FF66"};
+		case "ground": return {color: "#CC66CC"};
 		default: return {color: "#FF3300"}; // this is when we don't know the property value 
 		// or it is different to the ones above
 	}
 }
+
+
+
+var sampleData = {
+	"type":"Feature",
+	"id":1,
+	"geometry":{"type":"Point",	"coordinates":[-80.507338850497,43.4590274070942]},
+	"properties":{
+		"OBJECTID":1,
+		"globalid":"cbf0e24d-cc1d-46c4-8ee8-b023c8401254",
+		"Row_number":10,
+		"monument_type":"upright",
+		"Family_name":"Busch",
+		"Number_of_Persons":"1",
+		"Given_names_1":"Pauline",
+		"Surname_1":"Busch",
+		"Born_date_1":"N/A",
+		"Deceased_date_1":"09/05/1932",
+		"Given_names_2":null,
+		"Surname_2":null,
+		"Born_date_2":null,
+		"Deceased_date_2":null,
+		"Given_names_3":null,
+		"Surname_3":null,
+		"Born_date_3":null,
+		"Deceased_date_3":null,
+		"Given_names_4":null,
+		"Surname_4":null,
+		"Born_date_4":null,
+		"Deceased_date_4":null,
+		"Notes":null
+	}
+}
+
+var uprightMonumentStyle = {
+    radius: 8,
+    fillColor: "#ff7800",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+};
+
+myGeoJSONLayers.addLayer(geojson);
+
+L.geoJSON(sampleData, {
+	onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
+    pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, uprightMonumentStyle);
+    }
+}).addTo(map);
+
+
+
+
 
 
 // This is where Leaflet will go if you click on any of the objects which are in the 
@@ -139,11 +194,40 @@ function personal_info(feature, layer) {
 	var infoArr = [];
 	var infoStr = "";
 	
-	if (feature.properties.Given_names_1 !== "undefined" && feature.properties.Given_names_1 !== null) {
-		infoArr.push("<br/><br/><b>Person 1 Given Name:</b> " + feature.properties.Given_names_1)
-		infoArr.push("<br/><b>Person 1 Surname:</b> " + feature.properties.Surname_1)
-		infoArr.push("<br/><b>Person 1 Born Date:</b> " + feature.properties.Born_date_1)
-		infoArr.push("<br/><b>Person 1 Deceased Date:</b> " + feature.properties.Deceased_date_1)
+	if (feature.properties.Given_names_1 !== "undefined" && 
+		feature.properties.Given_names_1 !== null) {
+		// First Last
+		// Born # and deceased #
+		infoArr.push("<br/><br/>" + feature.properties.Given_names_1)
+		infoArr.push(" " + feature.properties.Surname_1)
+		infoArr.push("<br/>Born " + feature.properties.Born_date_1 + " and deceased " + feature.properties.Deceased_date_1)
+		}
+		
+	if (feature.properties.Given_names_2 !== "undefined" && 
+		feature.properties.Given_names_2 !== null) {
+		// First Last
+		// Born # and deceased #
+		infoArr.push("<br/><br/>" + feature.properties.Given_names_2)
+		infoArr.push(" " + feature.properties.Surname_2)
+		infoArr.push("<br/>Born " + feature.properties.Born_date_2 + " and deceased " + feature.properties.Deceased_date_2)
+		}
+	
+	if (feature.properties.Given_names_3 !== "undefined" && 
+		feature.properties.Given_names_3 !== null) {
+		// First Last
+		// Born # and deceased #
+		infoArr.push("<br/><br/>" + feature.properties.Given_names_3)
+		infoArr.push(" " + feature.properties.Surname_3)
+		infoArr.push("<br/>Born " + feature.properties.Born_date_3 + " and deceased " + feature.properties.Deceased_date_3)
+		}
+	
+	if (feature.properties.Given_names_4 !== "undefined" && 
+		feature.properties.Given_names_4 !== null) {
+		// First Last
+		// Born # and deceased #
+		infoArr.push("<br/><br/>" + feature.properties.Given_names_4)
+		infoArr.push(" " + feature.properties.Surname_4)
+		infoArr.push("<br/>Born " + feature.properties.Born_date_4 + " and deceased " + feature.properties.Deceased_date_4)
 		}
 	
 	infoArr.forEach(function(str) {
