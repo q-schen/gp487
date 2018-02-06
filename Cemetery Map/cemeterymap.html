@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cemetery Map</title>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<!-- Bootstrap Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<!-- JQuery - which is needed by Bootstrap and Leaflet -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- Latest compiled and minified JavaScript for Bootstrap -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>	
+<!-- Include Leaflet -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>	
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+
+</head>
+
+
+<body>
+<div class="container">
+	<!-- start the row of content -->
+<div class="row">
+	
+	<h1>Cemetery Map - Monuments of Rows 9 and 10</h1>
+	<div id="map" style="width: 100%; height: 600px"></div>
+	<div id="mycoordinates"</div>
+</div><!-- close the row of content-->
+
+
+<script>
+// Store basemaps
+var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	maxZoom: 20,
+	minZoom: 15,
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+var OpenStreetMap_France = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+	maxZoom: 20,
+	minZoom: 15,
+	attribution: '&copy; Openstreetmap France | &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+});
+
+// Map properties
+var map = L.map('map', {
+	center: [43.459102, -80.507272], // define initial map centre
+	zoom: 18, 						 // define initial zoom level
+	layers: [OpenStreetMap_France]	 // declare which basemap to display initially
+});
+
+// Toggle-list of basemaps
+var baseMaps = {
+	"OpenStreetMap": OpenStreetMap_France, 
+	"ESRI World Imagery": Esri_WorldImagery
+};
+
+
+
+<!-- This is where we are going to get Javascript to gather the GeoJSON and make it available-->
+<!-- so that Leaflet can display it -->
+<!-- We need to make a special LAYER for our GeoJson -->
+<!-- We are going to make a group for our 'top layers' -->
+var myGeoJSONLayers = L.layerGroup(); 
+  
+  <!-- we juse JQUERY to access our GeoJSON -->
+  <!-- Remember our GeoJSON is stored in a subfolder - so we need to make sure we get the file location correct-->
+  <!-- This will become a new layer -->
+  
+  $.getJSON("./geojson/Monument_Locations.geojson",  
+     function(data) {
+		 // tell Leaflet to go to the function action_To_Perform_When_Marker_Is_Clicked_On_The_Map
+		 // when someone clicks on one of the objects in the GeoJSON layer
+        var geojson = L.geoJson(data,{onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
+			style: specific_style_for_ways});
+        geojson.addTo(map);
+        <!-- add our new layer to the group of top layers -->
+        myGeoJSONLayers.addLayer(geojson);
+     }
+  );
+// Notice that we have made a change here also. 
+// We have added the myGeoJSONLayers variable so that Leaflet knows that you 
+// want to include the GeoJSON as a layer on the map
+// Notice that we also make a place where we can switch on/off the layer
+var overlayMaps = {"Monument Locations": myGeoJSONLayers};	
+
+L.control.layers(baseMaps, overlayMaps,myGeoJSONLayers).addTo(map); 
+
+
+function specific_style_for_ways(feature) {
+	switch (feature.properties.monument_type) {
+		case 'upright': return {color: "#FFFF00"};
+		case 'ledge': return {color: "#99FF66"};
+		case 'ground': return {color: "#CC66CC"};
+		default: return {color: "#FF3300"}; // this is when we don't know the property value 
+		// or it is different to the ones above
+	}
+}
+
+
+// This is where Leaflet will go if you click on any of the objects which are in the 
+// GeoJSON file
+function action_To_Perform_When_Marker_Is_Clicked_On_The_Map(feature, layer) {
+
+    // does this clicked feature have any properties in its GeoJSON?
+    if (feature.properties)
+    {
+		// the text for the Popup
+		var PopupText = []; 
+		
+		PopupText.push("<h4>Monument Information</h4>");
+		PopupText.push("<b>Row Number:</b> " + feature.properties.Row_number);
+		PopupText.push("<br/><b>Monument Type:</b> " + feature.properties.monument_type);
+		PopupText.push("<br/><b>Family Name:</b> " + feature.properties.Family_name);
+		PopupText.push("<br/><b>Number of Persons:</b> " + feature.properties.Number_of_Persons);
+			
+		if (feature.properties.Given_names_1)
+			PopupText.push("<br/><b>Person 1 Given Name:</b> " + feature.properties.Given_names_1)			
+	
+		// Join all the text to make the Popup	
+		layer.bindPopup("<p>" + PopupText[0] + PopupText[1] + PopupText[2] + PopupText[3] + PopupText[4] + personal_info(feature, layer) + "</p>");						
+	} // end if
+} // end of function
+
+
+
+
+
+function personal_info(feature, layer) {
+	var infoArr = [];
+	var infoStr = "";
+	
+	if (feature.properties.Given_names_1 !== "undefined" && feature.properties.Given_names_1 !== null) {
+		infoArr.push("<br/><br/><b>Person 1 Given Name:</b> " + feature.properties.Given_names_1)
+		infoArr.push("<br/><b>Person 1 Surname:</b> " + feature.properties.Surname_1)
+		infoArr.push("<br/><b>Person 1 Born Date:</b> " + feature.properties.Born_date_1)
+		infoArr.push("<br/><b>Person 1 Deceased Date:</b> " + feature.properties.Deceased_date_1)
+		}
+	
+	infoArr.forEach(function(str) {
+		infoStr += str;
+		}
+	)
+	return infoStr;
+}
+
+
+
+</script>
+</div><!-- close the container -->	
+</body>
+</html>
