@@ -79,7 +79,7 @@ var sampleData = {
 		"OBJECTID":1,
 		"globalid":"cbf0e24d-cc1d-46c4-8ee8-b023c8401254",
 		"Row_number":10,
-		"monument_type":"upright",
+		"monument_type":"ledge",
 		"Family_name":"Busch",
 		"Number_of_Persons":"1",
 		"Given_names_1":"Pauline",
@@ -118,7 +118,7 @@ var geojson = L.geoJSON(sampleData, {
 			color: styles[feature.properties.monument_type],
 			weight: 1,
 			opacity: 1,
-			fillOpacity: 1
+			fillOpacity: 0.8
 		});
     }
 })
