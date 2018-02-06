@@ -222,14 +222,67 @@ function photos(feature, layer) {
 	
 	if (feature.properties.Family_name !== "undefined" && 
 		feature.properties.Family_name !== null) {
-		// Images by family name
-		imgName = feature.properties.Family_name
-		imgArr.push('<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/' + imgName + '.jpg" target="_blank">'
+		imgName = feature.properties.Family_name;
+		imgName = imgName.trim();
+		
+		if (imgName == "Rieck") {
+			if (feature.properties.OBJECTID = 3) {
+				imgArr.push('<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/' 
+					+ imgName 
+					+ '_main1.jpg" target="_blank">'
+					+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/'
+					+ imgName
+					+ '_main1.jpg"'
+					+ ' alt="IMAGE" style="width:50px;height:50px;">'
+					+ '</a>')
+			}
+			else if (feature.properties.OBJECTID = 4) {
+				imgArr.push('<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/' 
+					+ imgName 
+					+ '_main2.jpg" target="_blank">'
+					+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/'
+					+ imgName
+					+ '_main2.jpg"'
+					+ ' alt="IMAGE" style="width:50px;height:50px;">'
+					+ '</a>')
+			}
+		}
+		
+		else if (imgName == "Steffler") {
+			if (feature.properties.OBJECTID = 11) {
+				imgArr.push('<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/' 
+					+ imgName 
+					+ '_main1.jpg" target="_blank">'
+					+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/'
+					+ imgName
+					+ '_main1.jpg"'
+					+ ' alt="IMAGE" style="width:50px;height:50px;">'
+					+ '</a>')
+			}
+			else if (feature.properties.OBJECTID = 10) {
+				imgArr.push('<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/' 
+					+ imgName 
+					+ '_main2.jpg" target="_blank">'
+					+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/'
+					+ imgName
+					+ '_main2.jpg"'
+					+ ' alt="IMAGE" style="width:50px;height:50px;">'
+					+ '</a>')
+			}
+		}
+		
+		else {
+		// non-doubled family names
+		imgName = feature.properties.Family_name;
+		imgArr.push('<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/' 
+			+ imgName 
+			+ '_main.jpg" target="_blank">'
 			+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/'
 			+ imgName.trim()
 			+ '_main.jpg"'
 			+ ' alt="IMAGE" style="width:50px;height:50px;">'
 			+ '</a>')
+		}
 	}
 	
 	imgArr.forEach(function(str) {
@@ -240,13 +293,6 @@ function photos(feature, layer) {
 	return "<p>" 
 		+ imgStr
 		+ "</p>";
-	
-	
-	//return "<p>" 
-	//	+ '<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/Busch_1.jpg" target="_blank">'
-	//	+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/Busch_1.jpg" alt="IMAGE" style="width:50px;height:50px;">' 
-	//	+ "</a>"
-	//	+ "</p>";
 }
 
 
