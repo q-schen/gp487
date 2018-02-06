@@ -129,7 +129,7 @@ geojson.addTo(map);
 myGeoJSONLayers.addLayer(geojson);
 
 
-
+// style function doesn't work
 function specific_style_for_ways(feature) {
 	switch (feature.properties.monument_type) {
 		case "upright": return {color: "#FFFF00"};
@@ -218,19 +218,35 @@ function personal_info(feature, layer) {
 function photos(feature, layer) {
 	var imgArr = [];
 	var imgStr = "";
+	var imgName = '';
 	
+	if (feature.properties.Family_name !== "undefined" && 
+		feature.properties.Family_name !== null) {
+		// Images by family name
+		imgName = feature.properties.Family_name
+		imgArr.push('<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/' + imgName + '.jpg" target="_blank">'
+			+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/'
+			+ imgName.trim()
+			+ '_main.jpg"'
+			+ ' alt="IMAGE" style="width:50px;height:50px;">'
+			+ '</a>')
+	}
+	
+	imgArr.forEach(function(str) {
+		imgStr += str;
+		}
+	)
 	
 	return "<p>" 
-		+ '<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/Busch_1.jpg" target="_blank">'
-		+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/Busch_1.jpg" alt="Busch" style="width:50px;height:50px;">' 
-		+ "</a>"
+		+ imgStr
 		+ "</p>";
 	
 	
-	
-	// return "<p>" + "<a href=\"https://github.com/q-schen/gp487/blob/master/images/Busch_1.jpg\">Busch Photo</a>" + "</p>";
-	// return imgStr
-
+	//return "<p>" 
+	//	+ '<a href="https://raw.githubusercontent.com/q-schen/gp487/master/images/Busch_1.jpg" target="_blank">'
+	//	+ '<img src="https://raw.githubusercontent.com/q-schen/gp487/master/images/Busch_1.jpg" alt="IMAGE" style="width:50px;height:50px;">' 
+	//	+ "</a>"
+	//	+ "</p>";
 }
 
 
