@@ -66,46 +66,9 @@ var baseMaps = {
 
 
 
-<!-- This is where we are going to get Javascript to gather the GeoJSON and make it available-->
-<!-- so that Leaflet can display it -->
-<!-- We need to make a special LAYER for our GeoJson -->
-<!-- We are going to make a group for our 'top layers' -->
 var myGeoJSONLayers = L.layerGroup(); 
-  
-<!-- we juse JQUERY to access our GeoJSON -->
-<!-- Remember our GeoJSON is stored in a subfolder - so we need to make sure we get the file location correct-->
-<!-- This will become a new layer -->
-
-$.getJSON("./geojson/Monument_Locations.geojson",  
-function(data) {
-	// tell Leaflet to go to the function action_To_Perform_When_Marker_Is_Clicked_On_The_Map
-	// when someone clicks on one of the objects in the GeoJSON layer
-	var geojson = L.geoJson(data,{onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
-		style: specific_style_for_ways});
-	geojson.addTo(map);
-	<!-- add our new layer to the group of top layers -->
-	myGeoJSONLayers.addLayer(geojson);
-	}
-);
-// Notice that we have made a change here also. 
-// We have added the myGeoJSONLayers variable so that Leaflet knows that you 
-// want to include the GeoJSON as a layer on the map
-// Notice that we also make a place where we can switch on/off the layer
-var overlayMaps = {"Monument Locations": myGeoJSONLayers, "Sample Data": sampleData};	
-
+var overlayMaps = {"Monument Locations": myGeoJSONLayers};	
 L.control.layers(baseMaps, overlayMaps, myGeoJSONLayers).addTo(map); 
-
-
-function specific_style_for_ways(feature) {
-	switch (feature.properties.monument_type) {
-		case "upright": return {color: "#FFFF00"};
-		case "ledge": return {color: "#99FF66"};
-		case "ground": return {color: "#CC66CC"};
-		default: return {color: "#FF3300"}; // this is when we don't know the property value 
-		// or it is different to the ones above
-	}
-}
-
 
 
 var sampleData = {
@@ -139,6 +102,22 @@ var sampleData = {
 	}
 }
 
+
+var geojson = L.geoJSON(sampleData, {
+	onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
+    pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, uprightMonumentStyle);
+    }
+})
+geojson.addTo(map);
+myGeoJSONLayers.addLayer(geojson);
+
+
+
+
+
+
+
 var uprightMonumentStyle = {
     radius: 8,
     fillColor: "#ff7800",
@@ -148,18 +127,16 @@ var uprightMonumentStyle = {
     fillOpacity: 0.8
 };
 
-myGeoJSONLayers.addLayer(geojson);
 
-L.geoJSON(sampleData, {
-	onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
-    pointToLayer: function (feature, latlng) {
-        return L.circleMarker(latlng, uprightMonumentStyle);
-    }
-}).addTo(map);
-
-
-
-
+function specific_style_for_ways(feature) {
+	switch (feature.properties.monument_type) {
+		case "upright": return {color: "#FFFF00"};
+		case "ledge": return {color: "#99FF66"};
+		case "ground": return {color: "#CC66CC"};
+		default: return {color: "#FF3300"}; // this is when we don't know the property value 
+		// or it is different to the ones above
+	}
+}
 
 
 // This is where Leaflet will go if you click on any of the objects which are in the 
@@ -185,8 +162,6 @@ function action_To_Perform_When_Marker_Is_Clicked_On_The_Map(feature, layer) {
 		layer.bindPopup("<p>" + PopupText[0] + PopupText[1] + PopupText[2] + PopupText[3] + PopupText[4] + personal_info(feature, layer) + "</p>");						
 	} // end if
 } // end of function
-
-
 
 
 
