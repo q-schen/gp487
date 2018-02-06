@@ -160,7 +160,7 @@ function action_To_Perform_When_Marker_Is_Clicked_On_The_Map(feature, layer) {
 		
 		// Join all the text to make the Popup	
 		layer.bindPopup("<p>" + PopupText[0] + PopupText[1] + PopupText[2] + PopupText[3] + PopupText[4] + 
-			personal_info(feature, layer) + photos(feature, layer) + "</p>"
+			personal_info(feature, layer) + "<p><a href="https://github.com/q-schen/gp487/blob/master/images/Busch_1.jpg?raw=true">Busch Photo</a></p>" + "</p>"
 		);
 		
 	} // end if
