@@ -71,7 +71,7 @@ var overlayMaps = {"Monument Locations": myGeoJSONLayers};
 L.control.layers(baseMaps, overlayMaps, myGeoJSONLayers).addTo(map); 
 
 
-var sampleData = {
+var sampleData = [{
 	"type":"Feature",
 	"id":1,
 	"geometry":{"type":"Point",	"coordinates":[-80.507338850497,43.4590274070942]},
@@ -100,16 +100,19 @@ var sampleData = {
 		"Deceased_date_4":null,
 		"Notes":null
 	}
-}
+},
+{"type":"Feature","id":3,"geometry":{"type":"Point","coordinates":[-80.5071344963884,43.4593571292192]},"properties":{"OBJECTID":3,"globalid":"1e3bc50d-7dbf-49e1-a455-47f11e308ca2","Row_number":10,"monument_type":"ledge","Family_name":"Rieck","Number_of_Persons":"2","Given_names_1":"Lucy P.","Surname_1":"Eichler","Born_date_1":"1880","Deceased_date_1":"1950","Given_names_2":"Rob","Surname_2":"Rieck","Born_date_2":"1861","Deceased_date_2":"1955","Given_names_3":null,"Surname_3":null,"Born_date_3":null,"Deceased_date_3":null,"Given_names_4":null,"Surname_4":null,"Born_date_4":null,"Deceased_date_4":null,"Notes":null}},
+{"type":"Feature","id":10,"geometry":{"type":"Point","coordinates":[-80.5072659161272,43.4591505928805]},"properties":{"OBJECTID":10,"globalid":"ce9b680e-fc84-494f-b04c-c142f2253d03","Row_number":10,"monument_type":"ground","Family_name":"Steffler","Number_of_Persons":"1","Given_names_1":"Dorothy M.A. Frey","Surname_1":"Steffler","Born_date_1":"1914","Deceased_date_1":"2001","Given_names_2":null,"Surname_2":null,"Born_date_2":null,"Deceased_date_2":null,"Given_names_3":null,"Surname_3":null,"Born_date_3":null,"Deceased_date_3":null,"Given_names_4":null,"Surname_4":null,"Born_date_4":null,"Deceased_date_4":null,"Notes":null}}
+]
 
 
 var geojson = L.geoJSON(sampleData, {
 	onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
     pointToLayer: function (feature, latlng) {
 		var styles = {
-			"upright": 'grey',
-			"ledge": 'green',
-			"ground": 'brown'
+			"upright": "#8da0cb",
+			"ledge": "#fc8d62",
+			"ground": "#66c2a5"
 		};
 		
         return L.circleMarker(latlng, {
