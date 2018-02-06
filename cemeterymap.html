@@ -93,7 +93,7 @@ function(data) {
 // Notice that we also make a place where we can switch on/off the layer
 var overlayMaps = {"Monument Locations": myGeoJSONLayers, "Sample Data": sampleData};	
 
-L.control.layers(baseMaps, overlayMaps, myGeoJSONLayers, sampleData).addTo(map); 
+L.control.layers(baseMaps, overlayMaps, myGeoJSONLayers).addTo(map); 
 
 
 function specific_style_for_ways(feature) {
