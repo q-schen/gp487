@@ -1,0 +1,30 @@
+{
+"type":"Feature",
+"id":1,
+"geometry":{"type":"Point",	"coordinates":[-80.507338850497,43.4590274070942]},
+"properties":{
+	"OBJECTID":1,
+	"globalid":"cbf0e24d-cc1d-46c4-8ee8-b023c8401254",
+	"Row_number":10,
+	"monument_type":"upright",
+	"Family_name":"Busch",
+	"Number_of_Persons":"1",
+	"Given_names_1":"Pauline",
+	"Surname_1":"Busch",
+	"Born_date_1":"N/A",
+	"Deceased_date_1":"09/05/1932",
+	"Given_names_2":null,
+	"Surname_2":null,
+	"Born_date_2":null,
+	"Deceased_date_2":null,
+	"Given_names_3":null,
+	"Surname_3":null,
+	"Born_date_3":null,
+	"Deceased_date_3":null,
+	"Given_names_4":null,
+	"Surname_4":null,
+	"Born_date_4":null,
+	"Deceased_date_4":null,
+	"Notes":null
+	}
+}

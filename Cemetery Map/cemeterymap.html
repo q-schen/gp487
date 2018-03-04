@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mount Hope Cemetery</title>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<!-- Bootstrap Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<!-- JQuery - which is needed by Bootstrap and Leaflet -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- Latest compiled and minified JavaScript for Bootstrap -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>	
+<!-- Include Leaflet -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>	
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" /> 
+<!-- Leaflet search plugin -->
+<script src="./leaflet-search-master/src/leaflet-search.js"></script>
+<link rel="stylesheet" href="./leaflet-search-master/src/leaflet-search.css">
+<!-- Default Extent -->
+<link rel="stylesheet" href="./Leaflet.defaultextent-master/dist/leaflet.defaultextent.css"/>
+<script src="./Leaflet.defaultextent-master/dist/leaflet.defaultextent.js"></script>
+
+
+<style>
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+</style>
+
+</head>
+
+
+<body>
+<div class="container">
+	<!-- start the row of content -->
+<div class="row">
+	
+	<h1>Monuments of Rows 9 and 10</h1>
+	<div id="map" style="width: 100%; height: 600px"></div>
+	<div id="mycoordinates"</div>
+</div><!-- close the row of content-->
+
+
+<script>
+// Store basemaps
+var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	maxZoom: 20,
+	minZoom: 15,
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+var OpenStreetMap_France = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+	maxZoom: 20,
+	minZoom: 15,
+	attribution: '&copy; Openstreetmap France | &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+});
+
+// Map properties
+var map = L.map('map', {
+	center: [43.459102, -80.507272], // define initial map centre
+	zoom: 18, 						 // define initial zoom level
+	defaultExtentControl: true,				 // default zoom
+	layers: [OpenStreetMap_France]	 // declare which basemap to display initially
+});
+
+
+
+// Toggle-list of basemaps
+var baseMaps = {
+	"OpenStreetMap": OpenStreetMap_France, 
+	"ESRI World Imagery": Esri_WorldImagery
+};
+
+
+// create geojson layer
+var geojsonLayer = L.geoJson(false, {
+	onEachFeature: popup_action, // action when clicked
+	pointToLayer: specific_style // marker style
+});
+
+
+// Load data from geoJSON, using jQuery, into the geojson layer variable
+$.getJSON("./geojson/Monument_Locations.geojson",  
+	function(data) {
+		geojsonLayer.addData(data).addTo(map);
+	}
+);
+
+// create search control
+var searchControl = new L.Control.Search({
+	layer: geojsonLayer, 
+	propertyName: 'Family_name', 
+	initial: false,
+	hideMarkerOnCollapse: true,
+	textPlaceholder: 'Surname...'
+});
+
+// action when search is successful: open popup
+searchControl.on('search:locationfound', function(event) {
+		event.layer.openPopup();
+	}
+);
+
+
+// add basemaps and monuments layer to control
+//var overlayMaps = {"Monument Locations": geojsonLayer};
+L.control.layers(baseMaps
+//, overlayMaps
+).addTo(map);
+map.addLayer(geojsonLayer);
+
+// add search control to map
+map.addControl(searchControl);
+
+
+// marker style function
+function specific_style(feature, latlng) {
+	var styles = { // colours
+		"upright": "#ff7f00",
+		"ledge": "#ffff33",
+		"ground": "#a65628"
+	};
+	return L.circleMarker(latlng, { // circles
+		radius: 8,
+		fillColor: styles[feature.properties.monument_type],
+		color: styles[feature.properties.monument_type],
+		weight: 1,
+		opacity: 1,
+		fillOpacity: 0.8
+	});
+}
+
+
+// Adding a Legend
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function(map) {
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = ["upright", "ledge", "ground"],
+		colours = ["#ff7f00", "#ffff33", "#a65628"],
+        labels = [];
+	
+	div.innerHTML += "<b>Monument Type</b><br>";
+	
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + colours[i] + '"></i> ' + grades[i] + '<br>';
+    }
+
+    return div;
+};
+
+legend.addTo(map);
+
+
+
+// popup action function
+function popup_action(feature, layer) {
+
+    // does this clicked feature have any properties in its GeoJSON?
+    if (feature.properties)
+    {
+		// the text for the Popup
+		var PopupText = []; 
+		
+		PopupText.push("<h4>Monument Information</h4>");
+		PopupText.push("<b>Row Number:</b> " + feature.properties.Row_number);
+		PopupText.push("<br/><b>Monument Type:</b> " + feature.properties.monument_type);
+		PopupText.push("<br/><b>Family Name:</b> " + feature.properties.Family_name);
+		PopupText.push("<br/><b>Number of Persons:</b> " + feature.properties.Number_of_Persons);
+		
+		// Join all the text to make the Popup	
+		layer.bindPopup("<p>" + PopupText[0] + PopupText[1] + PopupText[2] + PopupText[3] + PopupText[4] + 
+			personal_info(feature, layer) + photos(feature, layer) + "</p>");
+	} // end if
+} // end of function
+
+
+
+// generates personal info string, function
+//   used by popup action function
+function personal_info(feature, layer) {
+	var infoArr = [];
+	var infoStr = "";
+	
+	if (feature.properties.Given_names_1 !== "undefined" && 
+		feature.properties.Given_names_1 !== null) {
+		// First Last
+		// Born # and deceased #
+		infoArr.push("<br/><br/>" + feature.properties.Given_names_1)
+		infoArr.push(" " + feature.properties.Surname_1)
+		infoArr.push("<br/>Born " + feature.properties.Born_date_1 + " and deceased " + feature.properties.Deceased_date_1)
+		}
+		
+	if (feature.properties.Given_names_2 !== "undefined" && 
+		feature.properties.Given_names_2 !== null) {
+		// First Last
+		// Born # and deceased #
+		infoArr.push("<br/><br/>" + feature.properties.Given_names_2)
+		infoArr.push(" " + feature.properties.Surname_2)
+		infoArr.push("<br/>Born " + feature.properties.Born_date_2 + " and deceased " + feature.properties.Deceased_date_2)
+		}
+	
+	if (feature.properties.Given_names_3 !== "undefined" && 
+		feature.properties.Given_names_3 !== null) {
+		// First Last
+		// Born # and deceased #
+		infoArr.push("<br/><br/>" + feature.properties.Given_names_3)
+		infoArr.push(" " + feature.properties.Surname_3)
+		infoArr.push("<br/>Born " + feature.properties.Born_date_3 + " and deceased " + feature.properties.Deceased_date_3)
+		}
+	
+	if (feature.properties.Given_names_4 !== "undefined" && 
+		feature.properties.Given_names_4 !== null) {
+		// First Last
+		// Born # and deceased #
+		infoArr.push("<br/><br/>" + feature.properties.Given_names_4)
+		infoArr.push(" " + feature.properties.Surname_4)
+		infoArr.push("<br/>Born " + feature.properties.Born_date_4 + " and deceased " + feature.properties.Deceased_date_4)
+		}
+	
+	infoArr.forEach(function(str) {
+		infoStr += str;
+		}
+	)
+	return infoStr;
+}
+
+
+// image string for families with 2 photos
+//   used by photos function
+function main12(imagename, imagearray, num) {
+	var number = num;
+	imagearray.push('<a href="./images/' 
+					+ imagename 
+					+ '_main'
+					+ number.toString()
+					+ '.jpg" target="_blank">'
+					+ '<img src="./images/'
+					+ imagename
+					+ '_main'
+					+ number.toString()
+					+ '.jpg"'
+					+ ' alt="IMAGE" style="width:50px;height:50px;">'
+					+ '</a>');
+}
+
+// generates photos string, function
+//   used by popup action function
+function photos(feature, layer) {
+	var imgArr = [];
+	var imgStr = "";
+	var imgName = '';
+	
+	if (feature.properties.Family_name !== "undefined" && 
+		feature.properties.Family_name !== null) {
+		imgName = feature.properties.Family_name;
+		imgName = imgName.trim();
+		
+		// Begin hard-coding of families with multiple photos
+		// Dietrich
+		if (imgName == "Dietrich") {
+			if (feature.properties.OBJECTID == 7) {
+				main12(imgName, imgArr, 1);
+			}
+			else if (feature.properties.OBJECTID == 6) {
+				main12(imgName, imgArr, 2);
+			}
+		}
+		// Hamm
+		else if (imgName == "Hamm") {
+			if (feature.properties.OBJECTID == 25) {
+				main12(imgName, imgArr, 1);
+			}
+			else if (feature.properties.OBJECTID == 26) {
+				main12(imgName, imgArr, 2);
+			}
+		}
+		// Hofferd; front back
+		else if (imgName == "Hofferd") {
+			main12(imgName, imgArr, 1);
+			main12(imgName, imgArr, 2);
+		}
+		// Pert; front back
+		else if (imgName == "Pert") {
+			main12(imgName, imgArr, 1);
+			main12(imgName, imgArr, 2);
+		}
+		// Péquegnat; front back
+		else if (imgName == "Péquegnat") {
+			main12(imgName, imgArr, 1);
+			main12(imgName, imgArr, 2);
+		}
+		// Rieck
+		else if (imgName == "Rieck") {
+			if (feature.properties.OBJECTID == 3) {
+				main12(imgName, imgArr, 1);
+			}
+			else if (feature.properties.OBJECTID == 4) {
+				main12(imgName, imgArr, 2);
+			}
+		}
+		// Schmidt
+		else if (imgName == "Schmidt") {
+			if (feature.properties.OBJECTID == 17) {
+				main12(imgName, imgArr, 1);
+			}
+			else if (feature.properties.OBJECTID == 18) {
+				main12(imgName, imgArr, 2);
+			}
+		}
+		// Steffler
+		else if (imgName == "Steffler") {
+			if (feature.properties.OBJECTID == 11) {
+				main12(imgName, imgArr, 1);
+			}
+			else if (feature.properties.OBJECTID == 10) {
+				main12(imgName, imgArr, 2);
+			}
+		}
+		// Really big families
+		// Binkle
+		else if (imgName == "Binkle") {
+			imgArr.push('<a href="./images/' 
+				+ imgName 
+				+ '_main.jpg" target="_blank">'
+				+ '<img src="./images/'
+				+ imgName
+				+ '_main.jpg"'
+				+ ' alt="IMAGE" style="width:50px;height:50px;">'
+				+ '</a>');
+			for (i = 1; i <= 6; i++) {
+				imgArr.push('<a href="./images/' 
+					+ imgName
+					+ i
+					+ '.jpg" target="_blank">'
+					+ '<img src="./images/'
+					+ imgName
+					+ i
+					+ '.jpg"'
+					+ ' alt="IMAGE" style="width:50px;height:50px;">'
+					+ '</a>');
+			};
+		}
+		else if (imgName == "Hagmeier") {
+			imgArr.push('<a href="./images/' 
+				+ imgName 
+				+ '_main.jpg" target="_blank">'
+				+ '<img src="./images/'
+				+ imgName
+				+ '_main.jpg"'
+				+ ' alt="IMAGE" style="width:50px;height:50px;">'
+				+ '</a>');
+			for (i = 1; i <= 5; i++) {
+				imgArr.push('<a href="./images/' 
+					+ imgName
+					+ i
+					+ '.jpg" target="_blank">'
+					+ '<img src="./images/'
+					+ imgName
+					+ i
+					+ '.jpg"'
+					+ ' alt="IMAGE" style="width:50px;height:50px;">'
+					+ '</a>');
+			};
+		}
+		else if (imgName == "Janzen") {
+			imgArr.push('<a href="./images/' 
+				+ imgName 
+				+ '_main.jpg" target="_blank">'
+				+ '<img src="./images/'
+				+ imgName
+				+ '_main.jpg"'
+				+ ' alt="IMAGE" style="width:50px;height:50px;">'
+				+ '</a>');
+			for (i = 1; i <= 8; i++) {
+				imgArr.push('<a href="./images/' 
+					+ imgName
+					+ i
+					+ '.jpg" target="_blank">'
+					+ '<img src="./images/'
+					+ imgName
+					+ i
+					+ '.jpg"'
+					+ ' alt="IMAGE" style="width:50px;height:50px;">'
+					+ '</a>');
+			};
+		}
+		
+		// Non-hard-coded
+		else {
+		// single-image families
+		imgArr.push('<a href="./images/' 
+			+ imgName 
+			+ '_main.jpg" target="_blank">'
+			+ '<img src="./images/'
+			+ imgName
+			+ '_main.jpg"'
+			+ ' alt="IMAGE" style="width:50px;height:50px;">'
+			+ '</a>');
+		}
+	}
+	
+	imgArr.forEach(function(str) {
+		imgStr += str;
+		}
+	)
+	
+	return "<p>" 
+		+ imgStr
+		+ "</p>";
+}
+
+
+</script>
+</div><!-- close the container -->	
+</body>
+</html>

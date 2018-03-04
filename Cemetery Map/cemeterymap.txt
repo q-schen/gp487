@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FOSS4VGI - Leaflet Lectures - GeoJson Example 4</title>
+<!-- This part of our web page should hardly change over the course of lecture today -->
+<!-- This part of the web-page tells the web-browser it will need certain functionality
+to make the page display/function as the programmer intended -->
+<!-- There should be no need for you to change any of the links below -->
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<!-- Bootstrap Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<!-- JQuery - which is needed by Bootstrap and Leaflet -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- Latest compiled and minified JavaScript for Bootstrap -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>	
+	
+<!-- Include Leaflet -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>	
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+
+</head>
+
+<body>
+<div class="container">
+	<!-- start the row of content -->
+<div class="row">
+	
+	<h1>This is GeoJson Example 4 - Our fourth example of using GeoJSON in Leaflet</h1>	<!-- We can change this piece of text each time -->
+	<h2>Styling Land Cover Maps (Polygons) from Estonian OpenStreetMap</h2>
+	<div id="map" style="width: 100%; height: 600px"></div>
+	<div id="mycoordinates"</div>
+</div><!-- close the row of content-->
+
+<script><!-- This is where our mapping code starts -->
+// This is our base layer - you should not need to change this in many examples
+var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	maxZoom: 19,
+	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+});
+// Notice how the MAP is centered at a particular point - notice the ZOOM level
+var map = L.map('map', {center: [58.53836037096827,26.829261778621003], zoom: 13,layers: [OpenStreetMap_Mapnik ]});
+	
+var baseMaps = {"OSM": OpenStreetMap_Mapnik };
+
+  
+
+<!-- This is where we are going to get Javascript to gather the GeoJSON and make it available-->
+<!-- so that Leaflet can display it -->
+<!-- We need to make a special LAYER for our GeoJson -->
+<!-- We are going to make a group for our 'top layers' -->
+var myGeoJSONLayers = L.layerGroup(); 
+  
+  <!-- we juse JQUERY to access our GeoJSON -->
+  <!-- Remember our GeoJSON is stored in a subfolder - so we need to make sure we get the file location correct-->
+  <!-- This will become a new layer -->
+  
+  $.getJSON("./geojson/estoniaLanduse.geojson",  
+     function(data) {
+		 // tell Leaflet to go to the function action_To_Perform_When_Marker_Is_Clicked_On_The_Map
+		 // when someone clicks on one of the objects in the GeoJSON layer
+        var geojson = L.geoJson(data,{onEachFeature: action_To_Perform_When_Marker_Is_Clicked_On_The_Map,
+			style: specific_style_for_ways});
+        geojson.addTo(map);
+        <!-- add our new layer to the group of top layers -->
+        myGeoJSONLayers.addLayer(geojson);
+     }
+  );
+// Notice that we have made a change here also. 
+// We have added the myGeoJSONLayers variable so that Leaflet knows that you 
+// want to include the GeoJSON as a layer on the map
+// Notice that we also make a place where we can switch on/off the layer
+var overlayMaps = {"Estonian Landuse": myGeoJSONLayers};	
+
+L.control.layers(baseMaps, overlayMaps,myGeoJSONLayers).addTo(map); 
+
+// This is a VERY important function. This is where we say which colors will be 
+// displayed for specific values of the landuse tag 
+function specific_style_for_ways(feature) {
+			switch (feature.properties.landuse) {
+				case 'meadow': return {color: "#FFFF00"};
+				case 'forest':   return {color: "#99FF66"};
+				case 'farm':   return {color: "#CC66CC"};
+				default: return {color: "#FF3300"}; // this is when we don't know the property value 
+				// or it is different to the ones above
+			}
+		}
+
+
+// This is where Leaflet will go if you click on any of the objects which are in the 
+// GeoJSON file
+function action_To_Perform_When_Marker_Is_Clicked_On_The_Map(feature, layer) {
+
+    // does this clicked feature have any properties in its GeoJSON?
+    if (feature.properties)
+    {
+		// the text for the Popup
+		var PopupText = []; 
+		
+		PopupText.push("<h3>LandUse Information</h3>");
+			
+		if (feature.properties.landuse) // if this is a property called landuse
+			PopupText.push("<br/>Hello I am LANDUSE = " + feature.properties.landuse)			
+	
+		// Join all the text to make the Popup	
+		layer.bindPopup("<p>" + PopupText.join() + "</p>");						
+	} // end if
+} // end of function
+
+</script><!-- This is where our mapping code ends -->
+</div><!-- close the container -->	
+</body>
+</html>
