@@ -100,7 +100,7 @@ var geojsonLayer = L.geoJson(false, {
 
 
 // Load data from geoJSON, using jQuery, into the geojson layer variable
-$.getJSON("./geojson/Monument_Locations.geojson",  
+$.getJSON("./geoJSON/Monument_Locations.geojson",  
 	function(data) {
 		geojsonLayer.addData(data).addTo(map);
 	}
