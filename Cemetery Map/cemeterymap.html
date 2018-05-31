@@ -60,6 +60,8 @@
 	<div id="mycoordinates"</div>
 </div><!-- close the row of content-->
 
+<!-- Loading the GeoJSONs -->
+<script src="./GeoJSON/Monument_Locations.geojson" type="text/javascript"></script>
 
 <script>
 // Store basemaps
@@ -93,18 +95,23 @@ var baseMaps = {
 
 
 // create geojson layer
-var geojsonLayer = L.geoJson(false, {
-	onEachFeature: popup_action, // action when clicked
-	pointToLayer: specific_style // marker style
-});
+//var geojsonLayer = L.geoJson(false, {
+//	onEachFeature: popup_action, // action when clicked
+//	pointToLayer: specific_style // marker style
+//});
 
 
 // Load data from geoJSON, using jQuery, into the geojson layer variable
-$.getJSON("./geoJSON/Monument_Locations.geojson",  
-	function(data) {
-		geojsonLayer.addData(data).addTo(map);
-	}
-);
+//$.getJSON("./geoJSON/Monument_Locations.geojson",  
+//	function(data) {
+//		geojsonLayer.addData(data).addTo(map);
+//	}
+//);
+	
+var monument = new L.geoJson(monuments, {
+	onEachFeature: popup_action, // action when clicked
+	pointToLayer: specific_style // marker style
+});
 
 // create search control
 var searchControl = new L.Control.Search({
