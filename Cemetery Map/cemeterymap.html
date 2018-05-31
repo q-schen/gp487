@@ -95,23 +95,23 @@ var baseMaps = {
 
 
 // create geojson layer
-//var geojsonLayer = L.geoJson(false, {
-//	onEachFeature: popup_action, // action when clicked
-//	pointToLayer: specific_style // marker style
-//});
-
-
-// Load data from geoJSON, using jQuery, into the geojson layer variable
-//$.getJSON("./geoJSON/Monument_Locations.geojson",  
-//	function(data) {
-//		geojsonLayer.addData(data).addTo(map);
-//	}
-//);
-	
-var monument = new L.geoJson(monuments, {
+var geojsonLayer = L.geoJson(false, {
 	onEachFeature: popup_action, // action when clicked
 	pointToLayer: specific_style // marker style
 });
+
+
+// Load data from geoJSON, using jQuery, into the geojson layer variable
+$.getJSON("./geoJSON/Monument_Locations.geojson", 
+	function(data) {
+		geojsonLayer.addData(data).addTo(map);
+	}
+);
+	
+//var monument = new L.geoJson(monuments, {
+//	onEachFeature: popup_action, // action when clicked
+//	pointToLayer: specific_style // marker style
+//});
 
 // create search control
 var searchControl = new L.Control.Search({
